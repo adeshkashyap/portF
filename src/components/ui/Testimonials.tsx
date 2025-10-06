@@ -45,7 +45,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-20 md:py-32 bg-muted/30 relative overflow-hidden">
+    <section id="testimonials" className="py-12 md:py-20 bg-muted/30 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-radial opacity-20" />
       
       <div className="container mx-auto px-4 relative z-10">

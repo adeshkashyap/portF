@@ -40,7 +40,7 @@ const services = [
 
 export default function HireUs() {
   return (
-    <section id="hire-us" className="py-20 md:py-32">
+    <section id="hire-us" className="py-12 md:py-20">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

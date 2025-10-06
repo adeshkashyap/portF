@@ -110,7 +110,7 @@ const APIDemo = () => {
   }
 
   return (
-    <section id="api-demo" className="py-20 md:py-32 relative overflow-hidden">
+    <section id="api-demo" className="py-12 md:py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-radial opacity-30" />
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
