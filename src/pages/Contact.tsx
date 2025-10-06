@@ -1,4 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+// Safe window typing for optional grecaptcha
+declare global {
+  interface Window {
+    grecaptcha?: any;
+  }
+}
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,15 +36,48 @@ const Contact = () => {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
-  // Simulated submit handler: tries a backend first, then falls back to mock
+  // Honeypot ref (uncontrolled input so bots can fill it)
+  const honeypotRef = useRef<HTMLInputElement | null>(null);
+
+  // reCAPTCHA (optional) client integration: if VITE_RECAPTCHA_SITE_KEY present and script loads, request a token
+  const env: any = (import.meta as any)?.env || {};
+  const recaptchaSiteKey = env.VITE_RECAPTCHA_SITE_KEY as string | undefined;
+  const recaptchaScriptLoaded = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (!recaptchaSiteKey || recaptchaScriptLoaded.current) return;
+    const s = document.createElement("script");
+    s.src = `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
+    s.async = true;
+    // script load handled silently; we query grecaptcha when needed
+    document.body.appendChild(s);
+    recaptchaScriptLoaded.current = true;
+    return () => {
+      try { document.body.removeChild(s); } catch {}
+    };
+  }, [recaptchaSiteKey]);
+
+  async function getRecaptchaToken() {
+    try {
+      if (window.grecaptcha && recaptchaSiteKey) {
+        await window.grecaptcha.ready?.();
+        return await window.grecaptcha.execute(recaptchaSiteKey, { action: "submit" });
+      }
+    } catch {}
+    return "";
+  }
+
+  // Submit handler: posts to Netlify Function
   async function onSubmit(values: FormValues) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 6000);
-      const res = await fetch("/api/contact", {
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const recaptchaToken = await getRecaptchaToken();
+      const payload = { ...values, recaptchaToken, company: honeypotRef.current?.value || "" };
+      const res = await fetch("/.netlify/functions/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -46,10 +86,13 @@ const Contact = () => {
         reset();
         return;
       }
-      // Fallback mock
-      await new Promise((r) => setTimeout(r, 800));
-      toast({ title: "Message Sent (demo)", description: "This is a demo environment. We'll be in touch." });
-      reset();
+      const data = await res.json().catch(() => ({}));
+      if (data?.demo) {
+        toast({ title: "Message Sent (demo)", description: "This is a demo environment. We'll be in touch." });
+        reset();
+        return;
+      }
+      toast({ title: "Submission failed", description: data?.error || "Please try again later.", variant: "destructive" as any });
     } catch {
       toast({ title: "Network error", description: "Please try again or use a direct contact option.", variant: "destructive" as any });
     }
@@ -123,12 +166,17 @@ const Contact = () => {
                 <Textarea id="message" rows={5} placeholder="Tell us about your project..." aria-invalid={!!errors.message} {...register("message")} />
                 {errors.message && <p className="text-xs text-destructive mt-1">{errors.message.message}</p>}
               </div>
+              {/* Honeypot field (hidden) */}
+              <div className="hidden" aria-hidden>
+                <label htmlFor="company" className="block text-sm font-medium mb-2">Company</label>
+                <input id="company" name="company" placeholder="Company" ref={honeypotRef} className="hidden" />
+              </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto group">
                   {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
                 <Button asChild variant="outline" className="w-full sm:w-auto group">
-                  <a href="#contact" aria-label="Schedule a discovery call">
+                  <a href={(env.VITE_CALENDLY_URL as string) || "#contact"} target="_blank" rel="noopener noreferrer" aria-label="Schedule a discovery call">
                     <Calendar className="h-4 w-4 mr-2" /> Schedule a Call
                   </a>
                 </Button>

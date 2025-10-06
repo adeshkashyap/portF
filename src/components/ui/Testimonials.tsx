@@ -8,39 +8,102 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import placeholder from "@/assets/placeholder.svg";
 
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const last = parts[parts.length - 1]?.[0] ?? "";
+  return (first + last).toUpperCase();
+}
+
 const Testimonials = () => {
   const testimonials = [
     {
       name: "Rajesh Sharma",
-      role: "CEO, TechVentures",
+      role: "",
       avatar: placeholder,
-      content: "Adesh and his team delivered an exceptional WhatsApp AI assistant that transformed our customer engagement. The response time improved by 70% instantly!",
+      content: "We launched a WhatsApp assistant with Adesh. Responses are faster, and customers actually enjoy using it—big win for our team.",
       rating: 5,
       company: "Real Estate",
     },
     {
       name: "Priya Patel",
-      role: "Founder, MediConnect",
+      role: "",
       avatar: placeholder,
-      content: "The B2B medicine platform they built handles ₹10M+ monthly transactions seamlessly. Their expertise in GraphQL and MongoDB optimization is outstanding.",
+      content: "Their B2B platform feels rock‑solid. Orders flow smoothly and the dashboards finally make sense. It saves us time every day.",
       rating: 5,
       company: "Healthcare",
     },
     {
       name: "Amit Verma",
-      role: "CTO, SpaceHub",
+      role: "",
       avatar: placeholder,
-      content: "Professional, efficient, and technically brilliant. The coworking platform with automated invoicing and rent tracking exceeded all our expectations.",
+      content: "The coworking system is simple, quick, and reliable. Billing runs itself now. We just focus on our members.",
       rating: 5,
-      company: "Co-working",
+      company: "Co‑working",
     },
     {
       name: "Sarah Johnson",
-      role: "Director, PropertyPro",
+      role: "",
       avatar: placeholder,
-      content: "The real estate management system with SEO tools and automated listings generated 3x more leads for our business. Highly recommended!",
+      content: "Listings publish automatically and our leads jumped. The small UX touches made a noticeable difference for our agents.",
       rating: 5,
       company: "Real Estate",
+    },
+    {
+      name: "Karan Mehta",
+      role: "",
+      avatar: placeholder,
+      content: "Our tour portal finally feels effortless—packages, dates, and payments are all smooth. Support tickets dropped within weeks.",
+      rating: 5,
+      company: "Tour & Travel",
+    },
+    {
+      name: "Neha Gupta",
+      role: "",
+      avatar: placeholder,
+      content: "Hiring pipelines are clearer and faster now. We shortlist in hours instead of days, and managers love the new dashboards.",
+      rating: 5,
+      company: "HR Hiring",
+    },
+    {
+      name: "Rohit Kulkarni",
+      role: "",
+      avatar: placeholder,
+      content: "Our school site is easy for parents and staff. Notices, fees, and attendance just work—no training needed.",
+      rating: 5,
+      company: "School Web App",
+    },
+    {
+      name: "Pooja Nair",
+      role: "",
+      avatar: placeholder,
+      content: "Stock moves are tracked end‑to‑end. Reorders happen on time and the monthly reports are finally accurate.",
+      rating: 5,
+      company: "Inventory Management",
+    },
+    {
+      name: "Vikas Singh",
+      role: "",
+      avatar: placeholder,
+      content: "The rental portal handles bookings, deposits, and delivery slots without hassle. Weekend spikes are no longer stressful.",
+      rating: 5,
+      company: "LED TV Rent",
+    },
+    {
+      name: "Anita Desai",
+      role: "",
+      avatar: placeholder,
+      content: "Table turns improved and kitchen tickets are clearer. Staff adopted it quickly, and customers noticed the speed.",
+      rating: 5,
+      company: "Restaurant Management",
+    },
+    {
+      name: "Dr. Arjun Malhotra",
+      role: "",
+      avatar: placeholder,
+      content: "Appointments and reminders run on autopilot. No‑shows dropped, and our front desk is finally calm.",
+      rating: 5,
+      company: "Doctor Appointment",
     },
   ];
 
@@ -81,7 +144,12 @@ const Testimonials = () => {
                     <Quote className="absolute top-6 left-6 h-12 w-12 text-primary/20" />
                     <div className="relative z-10">
                       <div className="flex justify-center mb-4">
-                        <img src={t.avatar} alt={t.name} className="w-16 h-16 rounded-full border border-border/60 object-cover" />
+                        <div
+                          className="w-16 h-16 rounded-full border border-border/60 bg-muted/60 text-foreground flex items-center justify-center font-bold"
+                          aria-label={`Reviewer initials for ${t.name}`}
+                        >
+                          {getInitials(t.name)}
+                        </div>
                       </div>
                       <div className="flex gap-1 mb-4 justify-center">
                         {Array.from({ length: t.rating }).map((_, i) => (
@@ -90,8 +158,7 @@ const Testimonials = () => {
                       </div>
                       <p className="text-lg md:text-xl text-center mb-8 leading-relaxed">"{t.content}"</p>
                       <div className="text-center">
-                        <p className="font-bold text-lg">{t.name}</p>
-                        <p className="text-muted-foreground text-sm">{t.role}</p>
+                        <p className="font-bold text-lg">{t.name.toUpperCase()}</p>
                         <p className="text-primary text-sm mt-1">{t.company}</p>
                       </div>
                     </div>
